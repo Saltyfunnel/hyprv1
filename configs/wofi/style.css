@@ -1,0 +1,83 @@
+* Catppuccin Mocha color definitions */
+@define-color base #1e1e2e;
+@define-color mantle #181825;
+@define-color text #cdd6f4;
+@define-color subtext0 #a6adc8;
+@define-color lavender #b4befe;
+@define-color surface1 #45475a;
+
+/* Global settings */
+* {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    color: @text;
+}
+
+/* Main window container */
+window {
+    background-color: @base;
+    border-radius: 12px;
+    padding: 20px;
+    width: 60vw;
+    height: 40vh;
+}
+
+/* Inner box */
+#inner-box {
+    background-color: @base;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Input field */
+#input {
+    background-color: @mantle;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    color: @text;
+}
+
+/* Scroll area */
+#scroll {
+    margin-top: 5px;
+    border-radius: 8px;
+    background-color: @base;
+}
+
+/* Each individual entry */
+#entry {
+    background-color: @base;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin: 3px 0;
+}
+
+/* Text within an entry */
+#entry text {
+    color: @text;
+}
+
+/* Selected entry */
+#entry:selected {
+    background-color: @surface1;
+    color: @lavender;
+}
+
+/* Text within a selected entry */
+#entry:selected text {
+    color: @lavender;
+}
+
+/* Matched text in the input or entries */
+#text:selected {
+    color: @lavender; /* Using lavender for accent as it's present and contrasts well */
+}
+
+/* Placeholder text in the input field */
+#input::placeholder {
+    color: @subtext0;
+}
