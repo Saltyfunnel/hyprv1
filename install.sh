@@ -118,8 +118,29 @@ echo "Copying Kitty config..."
 mkdir -p "$USER_HOME/.config/kitty"
 cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
 
+### Set up Starship and Fastfetch
+echo "Setting up Starship and Fastfetch..."
+
+# Copy starship.toml theme (Catppuccin)
+mkdir -p "$USER_HOME/.config"
+cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
+
+# Update .bashrc for Starship + Fastfetch
+BASHRC="$USER_HOME/.bashrc"
+
+# Add Starship init
+if ! grep -q 'starship init bash' "$BASHRC"; then
+  echo 'eval "$(starship init bash)"' >> "$BASHRC"
+fi
+
+# Add Fastfetch display
+if ! grep -q 'fastfetch' "$BASHRC"; then
+  echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
+fi
+
 ### Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
+chown "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.bashrc"
 
 ### Extract and install themes and icons
 
