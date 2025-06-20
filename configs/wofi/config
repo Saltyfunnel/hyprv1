@@ -1,34 +1,11 @@
-# Wofi Configuration File
-
-# Common options
-# Show drun (desktop entries) for applications.
-# If you want to also run arbitrary commands from your PATH, change this to `mode=drun,run`.
-mode=drun
-
-# Hide the scrollbar for a cleaner look.
-no-scrollbar=true
-
-# Enable case-insensitive searching for easier use.
+show=drun
+width=750
+height=400
+always_parse_args=true
+show_all=false
+term=kitty
+hide_scroll=true
+print_command=true
 insensitive=true
-
-# Specify the path to your stylesheet.
-# This assumes your 'style.css' file is located in '~/.config/wofi/'.
-# If you place it elsewhere, please update this path accordingly.
-style=$HOME/.config/wofi/style.css
-
-# Set the initial width and height of the Wofi window as percentages of the screen.
-# These can be further fine-tuned by the CSS in 'style.css'.
-width=60%
-height=40%
-
-# Position the Wofi window in the center of the screen.
-location=center
-
-# Ensure the config file is always parsed, even if Wofi is already running.
-always-parse-config=true
-
-# Set a custom prompt text at the top of the Wofi window.
-prompt=Run:
-
-# You can adjust the number of visible lines if needed.
-# lines=8
+prompt=
+columns=2
