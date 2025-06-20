@@ -125,6 +125,11 @@ echo "Setting up Starship and Fastfetch..."
 mkdir -p "$USER_HOME/.config"
 cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
 
+# Copy Fastfetch config
+mkdir -p "$USER_HOME/.config/fastfetch"
+cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
+
+
 # Update .bashrc for Starship + Fastfetch
 BASHRC="$USER_HOME/.bashrc"
 
