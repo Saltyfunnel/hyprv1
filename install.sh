@@ -52,7 +52,7 @@ OFFICIAL_PKGS=(
   ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code ttf-fira-mono ttf-fira-sans ttf-firacode-nerd
   ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
-  sddm firefox thunar thunar-archive-plugin thunar-volman tumbler gvfs kitty nano code fastfetch starship tar
+  sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
   hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
 )
 
