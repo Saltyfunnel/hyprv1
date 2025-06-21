@@ -158,6 +158,53 @@ tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/shar
 echo "Setting up Kvantum Catppuccin theme..."
 # Already installed kvantum-theme-catppuccin-git from AUR above
 
-echo "All done! You can now log in to Hyprland."
+### Apply Catppuccin theme to Thunar and GTK apps ###
 
+echo "Configuring GTK theme for user $SUDO_USER..."
+
+GTK3_CONF="$USER_HOME/.config/gtk-3.0/settings.ini"
+GTK4_CONF="$USER_HOME/.config/gtk-4.0/settings.ini"
+GTK2_CONF="$USER_HOME/.gtkrc-2.0"
+PROFILE="$USER_HOME/.profile"
+
+THEME_NAME="Catppuccin-Mocha"
+ICON_NAME="Tela-circle-dracula"
+FONT_NAME="Noto Sans 10"
+
+mkdir -p "$(dirname "$GTK3_CONF")"
+mkdir -p "$(dirname "$GTK4_CONF")"
+
+cat > "$GTK3_CONF" <<EOF
+[Settings]
+gtk-theme-name=$THEME_NAME
+gtk-icon-theme-name=$ICON_NAME
+gtk-font-name=$FONT_NAME
+EOF
+
+cat > "$GTK4_CONF" <<EOF
+[Settings]
+gtk-theme-name=$THEME_NAME
+gtk-icon-theme-name=$ICON_NAME
+gtk-font-name=$FONT_NAME
+EOF
+
+cat > "$GTK2_CONF" <<EOF
+gtk-theme-name="$THEME_NAME"
+gtk-icon-theme-name="$ICON_NAME"
+gtk-font-name="$FONT_NAME"
+EOF
+
+echo "Updating icon cache..."
+gtk-update-icon-cache /usr/share/icons/"$ICON_NAME" || true
+
+if ! grep -q "^export GTK_THEME=$THEME_NAME" "$PROFILE"; then
+  echo "export GTK_THEME=$THEME_NAME" >> "$PROFILE"
+  echo "Added GTK_THEME environment variable to $PROFILE"
+fi
+
+chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config" "$GTK2_CONF" "$PROFILE"
+
+echo "GTK theme configuration for Thunar and other GTK apps done."
+
+echo "All done! You can now log in to Hyprland."
 echo "========================================"
