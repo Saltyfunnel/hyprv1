@@ -129,7 +129,6 @@ cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starsh
 mkdir -p "$USER_HOME/.config/fastfetch"
 cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
 
-
 # Update .bashrc for Starship + Fastfetch
 BASHRC="$USER_HOME/.bashrc"
 
@@ -147,7 +146,7 @@ fi
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.bashrc"
 
-### Extract and install themes and icons
+### Extract and install themes, icons, cursors
 
 echo "Installing Catppuccin-Mocha GTK theme..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
@@ -155,56 +154,53 @@ tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/
 echo "Installing Tela Circle Dracula icon theme..."
 tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
 
+echo "Installing Bibata Modern Ice cursor theme..."
+tar -xf "$USER_HOME/hyprv1/assets/themes/Bibata-Modern-Ice.tar.xz" -C /usr/share/icons/
+
 echo "Setting up Kvantum Catppuccin theme..."
 # Already installed kvantum-theme-catppuccin-git from AUR above
 
-### Apply Catppuccin theme to Thunar and GTK apps ###
+echo "Configuring GTK and cursor theme system-wide..."
 
-echo "Configuring GTK theme for user $SUDO_USER..."
+# GTK 2 (Thunar etc.)
+cat > "$USER_HOME/.gtkrc-2.0" <<EOF
+gtk-theme-name="Catppuccin-Mocha"
+gtk-icon-theme-name="Tela-circle-dracula"
+gtk-font-name="Noto Sans 10"
+gtk-cursor-theme-name="Bibata-Modern-Ice"
+gtk-cursor-theme-size=24
+EOF
 
-GTK3_CONF="$USER_HOME/.config/gtk-3.0/settings.ini"
-GTK4_CONF="$USER_HOME/.config/gtk-4.0/settings.ini"
-GTK2_CONF="$USER_HOME/.gtkrc-2.0"
-PROFILE="$USER_HOME/.profile"
-
-THEME_NAME="Catppuccin-Mocha"
-ICON_NAME="Tela-circle-dracula"
-FONT_NAME="Noto Sans 10"
-
-mkdir -p "$(dirname "$GTK3_CONF")"
-mkdir -p "$(dirname "$GTK4_CONF")"
-
-cat > "$GTK3_CONF" <<EOF
+# GTK 3
+mkdir -p "$USER_HOME/.config/gtk-3.0"
+cat > "$USER_HOME/.config/gtk-3.0/settings.ini" <<EOF
 [Settings]
-gtk-theme-name=$THEME_NAME
-gtk-icon-theme-name=$ICON_NAME
-gtk-font-name=$FONT_NAME
+gtk-theme-name=Catppuccin-Mocha
+gtk-icon-theme-name=Tela-circle-dracula
+gtk-font-name=Noto Sans 10
+gtk-cursor-theme-name=Bibata-Modern-Ice
+gtk-cursor-theme-size=24
 EOF
 
-cat > "$GTK4_CONF" <<EOF
-[Settings]
-gtk-theme-name=$THEME_NAME
-gtk-icon-theme-name=$ICON_NAME
-gtk-font-name=$FONT_NAME
-EOF
+# GTK 4 (optional, safer for completeness)
+mkdir -p "$USER_HOME/.config/gtk-4.0"
+cp "$USER_HOME/.config/gtk-3.0/settings.ini" "$USER_HOME/.config/gtk-4.0/settings.ini"
 
-cat > "$GTK2_CONF" <<EOF
-gtk-theme-name="$THEME_NAME"
-gtk-icon-theme-name="$ICON_NAME"
-gtk-font-name="$FONT_NAME"
-EOF
-
-echo "Updating icon cache..."
-gtk-update-icon-cache /usr/share/icons/"$ICON_NAME" || true
-
-if ! grep -q "^export GTK_THEME=$THEME_NAME" "$PROFILE"; then
-  echo "export GTK_THEME=$THEME_NAME" >> "$PROFILE"
-  echo "Added GTK_THEME environment variable to $PROFILE"
+# Set environment vars in .xprofile (for Wayland)
+if ! grep -q 'GTK_THEME=' "$USER_HOME/.xprofile" 2>/dev/null; then
+  echo 'export GTK_THEME=Catppuccin-Mocha' >> "$USER_HOME/.xprofile"
+fi
+if ! grep -q 'XCURSOR_THEME=' "$USER_HOME/.xprofile" 2>/dev/null; then
+  echo 'export XCURSOR_THEME=Bibata-Modern-Ice' >> "$USER_HOME/.xprofile"
+  echo 'export XCURSOR_SIZE=24' >> "$USER_HOME/.xprofile"
 fi
 
-chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config" "$GTK2_CONF" "$PROFILE"
-
-echo "GTK theme configuration for Thunar and other GTK apps done."
+# Fix permissions
+chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.gtkrc-2.0"
+chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config/gtk-3.0"
+chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config/gtk-4.0"
+chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.xprofile"
 
 echo "All done! You can now log in to Hyprland."
+
 echo "========================================"
