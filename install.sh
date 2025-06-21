@@ -15,11 +15,11 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Get original user info
 if [ -z "${SUDO_USER:-}" ]; then
   echo "Run this script using sudo, e.g. sudo bash install.sh"
   exit 1
 fi
+
 USER_HOME=$(eval echo "~$SUDO_USER")
 echo "Installing as user: $SUDO_USER"
 echo "User home directory: $USER_HOME"
@@ -121,32 +121,27 @@ cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
 ### Set up Starship and Fastfetch
 echo "Setting up Starship and Fastfetch..."
 
-# Copy starship.toml theme (Catppuccin)
 mkdir -p "$USER_HOME/.config"
 cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
 
-# Copy Fastfetch config
 mkdir -p "$USER_HOME/.config/fastfetch"
 cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
 
-# Update .bashrc for Starship + Fastfetch
 BASHRC="$USER_HOME/.bashrc"
 
-# Add Starship init
 if ! grep -q 'starship init bash' "$BASHRC"; then
   echo 'eval "$(starship init bash)"' >> "$BASHRC"
 fi
 
-# Add Fastfetch display
 if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 fi
 
 ### Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
-chown "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.bashrc"
+chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
-### Extract and install themes, icons, cursors
+### Extract and install themes and icons
 
 echo "Installing Catppuccin-Mocha GTK theme..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
@@ -154,53 +149,22 @@ tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/
 echo "Installing Tela Circle Dracula icon theme..."
 tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
 
-echo "Installing Bibata Modern Ice cursor theme..."
+echo "Installing Bibata cursor theme..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Bibata-Modern-Ice.tar.xz" -C /usr/share/icons/
 
 echo "Setting up Kvantum Catppuccin theme..."
 # Already installed kvantum-theme-catppuccin-git from AUR above
 
-echo "Configuring GTK and cursor theme system-wide..."
+### Apply GTK, icon, and cursor theme using gsettings
 
-# GTK 2 (Thunar etc.)
-cat > "$USER_HOME/.gtkrc-2.0" <<EOF
-gtk-theme-name="Catppuccin-Mocha"
-gtk-icon-theme-name="Tela-circle-dracula"
-gtk-font-name="Noto Sans 10"
-gtk-cursor-theme-name="Bibata-Modern-Ice"
-gtk-cursor-theme-size=24
-EOF
+echo "Applying GTK, icon, and cursor themes for user $SUDO_USER..."
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
 
-# GTK 3
-mkdir -p "$USER_HOME/.config/gtk-3.0"
-cat > "$USER_HOME/.config/gtk-3.0/settings.ini" <<EOF
-[Settings]
-gtk-theme-name=Catppuccin-Mocha
-gtk-icon-theme-name=Tela-circle-dracula
-gtk-font-name=Noto Sans 10
-gtk-cursor-theme-name=Bibata-Modern-Ice
-gtk-cursor-theme-size=24
-EOF
-
-# GTK 4 (optional, safer for completeness)
-mkdir -p "$USER_HOME/.config/gtk-4.0"
-cp "$USER_HOME/.config/gtk-3.0/settings.ini" "$USER_HOME/.config/gtk-4.0/settings.ini"
-
-# Set environment vars in .xprofile (for Wayland)
-if ! grep -q 'GTK_THEME=' "$USER_HOME/.xprofile" 2>/dev/null; then
-  echo 'export GTK_THEME=Catppuccin-Mocha' >> "$USER_HOME/.xprofile"
-fi
-if ! grep -q 'XCURSOR_THEME=' "$USER_HOME/.xprofile" 2>/dev/null; then
-  echo 'export XCURSOR_THEME=Bibata-Modern-Ice' >> "$USER_HOME/.xprofile"
-  echo 'export XCURSOR_SIZE=24' >> "$USER_HOME/.xprofile"
-fi
-
-# Fix permissions
-chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.gtkrc-2.0"
-chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config/gtk-3.0"
-chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config/gtk-4.0"
-chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.xprofile"
+echo "Restarting Thunar for theme to apply..."
+sudo -u "$SUDO_USER" pkill thunar || true
+sleep 2
 
 echo "All done! You can now log in to Hyprland."
-
 echo "========================================"
