@@ -78,6 +78,32 @@ AUR_PKGS=(
 echo "Installing AUR packages with yay..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
+### Install all Catppuccin SDDM theme variants via yay
+echo "Installing Catppuccin SDDM theme variants..."
+sudo -u "$SUDO_USER" yay -S --noconfirm sddm-theme-catppuccin-frappe sddm-theme-catppuccin-latte sddm-theme-catppuccin-macchiato sddm-theme-catppuccin-mocha
+
+echo "Which Catppuccin SDDM theme flavor would you like to set as default?"
+echo "  1) frappe"
+echo "  2) latte"
+echo "  3) macchiato"
+echo "  4) mocha"
+read -rp "Enter number (1-4): " catppuccin_choice
+
+case $catppuccin_choice in
+  1) THEME="catppuccin-frappe" ;;
+  2) THEME="catppuccin-latte" ;;
+  3) THEME="catppuccin-macchiato" ;;
+  4) THEME="catppuccin-mocha" ;;
+  *) echo "Invalid choice, defaulting to mocha."; THEME="catppuccin-mocha" ;;
+esac
+
+echo "Setting SDDM theme to $THEME..."
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Theme]\nCurrent=$THEME" | sudo tee /etc/sddm.conf.d/catppuccin.conf
+
+echo "Restarting SDDM service to apply theme..."
+sudo systemctl restart sddm
+
 ### Copy configs and assets
 
 echo "Copying Hyprland config..."
