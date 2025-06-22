@@ -49,13 +49,16 @@ OFFICIAL_PKGS=(
   ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler
-  gvfs gvfs-mtp gvfs-gphoto2 gvfs-afc gvfs-udisks2 udisks2
+  gvfs gvfs-mtp gvfs-gphoto2 gvfs-afc udisks2
   kitty nano code fastfetch starship tar
   hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
 )
 
 echo "Installing official repo packages..."
 pacman -S --noconfirm "${OFFICIAL_PKGS[@]}"
+
+echo "Enabling and starting udisks2 service for Thunar mount support..."
+systemctl enable --now udisks2.service
 
 systemctl enable sddm.service
 
