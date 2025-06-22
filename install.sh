@@ -72,7 +72,7 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git
+  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
 )
 
 echo "Installing AUR packages with yay..."
@@ -128,6 +128,11 @@ mkdir -p "$USER_HOME/.config/fastfetch"
 cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
 
 BASHRC="$USER_HOME/.bashrc"
+
+#Add TheFuck Starship and Fastfetch into bashrc
+if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
+  echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
+fi
 
 if ! grep -q 'starship init bash' "$BASHRC"; then
   echo 'eval "$(starship init bash)"' >> "$BASHRC"
