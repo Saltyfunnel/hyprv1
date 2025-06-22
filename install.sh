@@ -128,8 +128,9 @@ cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
 echo "Copying wlogout config and assets..."
 mkdir -p "$USER_HOME/.config/wlogout"
 cp -r "$USER_HOME/hyprv1/configs/wlogout/"* "$USER_HOME/.config/wlogout/"
-mkdir -p "$USER_HOME/.config/assets/wlogout"
-cp -r "$USER_HOME/hyprv1/assets/wlogout/"* "$USER_HOME/.config/assets/wlogout/"
+
+mkdir -p "$USER_HOME/.config/wlogout/assets"
+cp -r "$USER_HOME/hyprv1/assets/wlogout/assets/"* "$USER_HOME/.config/wlogout/assets/"
 
 echo "Copying sample wallpapers..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
