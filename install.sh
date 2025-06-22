@@ -72,7 +72,7 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git
+  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
 )
 
 echo "Installing AUR packages with yay..."
@@ -161,6 +161,11 @@ fi
 
 if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
+fi
+
+# Add TheFuck alias
+if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
+  echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
 fi
 
 ### Fix ownership
