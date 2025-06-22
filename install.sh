@@ -72,11 +72,37 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git
 )
 
 echo "Installing AUR packages with yay..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
+
+### Install all Catppuccin SDDM theme variants via yay
+echo "Installing Catppuccin SDDM theme variants..."
+sudo -u "$SUDO_USER" yay -S --noconfirm sddm-theme-catppuccin-frappe sddm-theme-catppuccin-latte sddm-theme-catppuccin-macchiato sddm-theme-catppuccin-mocha
+
+echo "Which Catppuccin SDDM theme flavor would you like to set as default?"
+echo "  1) frappe"
+echo "  2) latte"
+echo "  3) macchiato"
+echo "  4) mocha"
+read -rp "Enter number (1-4): " catppuccin_choice
+
+case $catppuccin_choice in
+  1) THEME="catppuccin-frappe" ;;
+  2) THEME="catppuccin-latte" ;;
+  3) THEME="catppuccin-macchiato" ;;
+  4) THEME="catppuccin-mocha" ;;
+  *) echo "Invalid choice, defaulting to mocha."; THEME="catppuccin-mocha" ;;
+esac
+
+echo "Setting SDDM theme to $THEME..."
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Theme]\nCurrent=$THEME" | sudo tee /etc/sddm.conf.d/catppuccin.conf
+
+echo "Restarting SDDM service to apply theme..."
+sudo systemctl restart sddm
 
 ### Copy configs and assets
 
@@ -107,10 +133,8 @@ cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
 echo "Copying wlogout config and assets..."
 mkdir -p "$USER_HOME/.config/wlogout"
 cp -r "$USER_HOME/hyprv1/configs/wlogout/"* "$USER_HOME/.config/wlogout/"
-
-mkdir -p "$USER_HOME/.config/wlogout/assets"
-cp -r "$USER_HOME/hyprv1/assets/wlogout/assets/"* "$USER_HOME/.config/wlogout/assets/"
-
+mkdir -p "$USER_HOME/.config/assets/wlogout"
+cp -r "$USER_HOME/hyprv1/assets/wlogout/"* "$USER_HOME/.config/assets/wlogout/"
 
 echo "Copying sample wallpapers..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
@@ -137,11 +161,6 @@ fi
 
 if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
-fi
-
-# Add TheFuck alias
-if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
-  echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
 fi
 
 ### Fix ownership
