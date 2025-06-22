@@ -106,20 +106,13 @@ cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
 
 echo "Copying wlogout config and assets with Catppuccin theme..."
 
-# Create wlogout config dir
 mkdir -p "$USER_HOME/.config/wlogout"
-
-# Copy layout and style.css (replace these files in your repo)
 cp "$USER_HOME/hyprv1/configs/wlogout/layout" "$USER_HOME/.config/wlogout/layout"
 cp "$USER_HOME/hyprv1/configs/wlogout/style.css" "$USER_HOME/.config/wlogout/style.css"
 
-# Create assets directory inside wlogout config
 mkdir -p "$USER_HOME/.config/wlogout/assets"
+cp -r "$USER_HOME/hyprv1/assets/wlogout/"* "$USER_HOME/.config/wlogout/assets/"
 
-# Copy icon assets into the correct folder
-cp -r "$USER_HOME/hyprv1/assets/wlogout/assets/"* "$USER_HOME/.config/wlogout/assets/"
-
-# Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config/wlogout"
 
 echo "Copying sample wallpapers..."
