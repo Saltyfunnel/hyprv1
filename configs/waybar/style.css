@@ -9,34 +9,34 @@
 
 window#waybar {
     background: rgba(21, 18, 27, 0);
-    color: #cdd6f4;
+    color: #CDD6F4; /* Mocha foreground */
 }
 
 #workspaces button {
     padding: 5px;
-    color: #555869;
+    color: #B4BEFE; /* Light blue for workspace button */
     margin-right: 5px;
 }
 
 #workspaces button.active {
-    color: #a6adc8;
+    color: #F5C2E7; /* Light pink for active button */
 }
 
 #workspaces button.focused {
-    color: #a6adc8;
-    background: #eba0ac;
+    color: #F5C2E7; /* Focused text color */
+    background: #F38BA8; /* Light pink background for focused workspace */
     border-radius: 10px;
 }
 
 #workspaces button.urgent {
-    color: #11111b;
-    background: #a6e3a1;
+    color: #11111B;
+    background: #A6E3A1; /* Soft green for urgent state */
     border-radius: 10px;
 }
 
 #workspaces button:hover {
-    background: #cdd6f4;
-    color: #11111b;
+    background: #CDD6F4; /* Hover state background */
+    color: #11111B; /* Dark text on hover */
     border-radius: 10px;
 }
 
@@ -50,7 +50,7 @@ window#waybar {
 #workspaces,
 #tray,
 #backlight {
-    background: #1e1e2e;
+    background: #1E1E2E; /* Mocha dark background */
     padding: 0px 10px;
     margin: 3px 0px;
     margin-top: 5px;
@@ -66,7 +66,7 @@ window#waybar {
 }
 
 #workspaces {
-    background: #1e1e2e;
+    background: #1E1E2E; /* Same background as other elements */
     border-radius: 10px;
     margin-left: 10px;
     padding-right: 0px;
@@ -89,25 +89,25 @@ window#waybar {
 }
 
 #clock {
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for the clock */
     border-radius: 10px;
     margin-left: 5px;
     border-right: 0px;
 }
 
 #network {
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for network */
     border-radius: 10px 0px 0px 10px;
 }
 
 #pulseaudio {
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for pulseaudio */
     border-left: 0px;
     border-right: 0px;
 }
 
 #pulseaudio.microphone {
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for microphone */
     border-radius: 0px 10px 10px 0px;
     border-left: 0px;
     border-right: 0px;
@@ -115,20 +115,20 @@ window#waybar {
 }
 
 #battery {
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for battery */
     border-radius: 0px 10px 10px 0px;
     margin-right: 10px;
 }
 
 #custom-power {
-    background: #1e1e2e;
+    background: #1E1E2E;
     padding: 0 10px;
     margin: 3px 0;
     border-radius: 10px;
-    color: #a6adc8;
+    color: #A6ADC8; /* Light blue-gray for custom power button */
 }
 
 #custom-power:hover {
-    background: #eba0ac;
-    color: #11111b;
+    background: #F5C2E7; /* Light pink background for hover */
+    color: #11111B; /* Dark text on hover */
 }
