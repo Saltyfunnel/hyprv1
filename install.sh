@@ -53,9 +53,8 @@ OFFICIAL_PKGS=(
   ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist rofi  # switched wofi->rofi
-
-  mpv   # Added mpv media player here
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
+  mpv
 )
 
 echo "Installing official repo packages..."
@@ -72,10 +71,9 @@ else
   echo "No NVIDIA card detected, skipping NVIDIA drivers."
 fi
 
-### Packages to install from AUR via yay
+### Packages to install from AUR via yay (with tofi replacing rofi)
 AUR_PKGS=(
-  # replaced wofi with rofi-wayland if you want AUR version, else you can remove it
-  rofi-wayland-git swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-dracula-git thefuck
+  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-dracula-git thefuck
 )
 
 echo "Installing AUR packages with yay..."
@@ -95,9 +93,7 @@ echo "Copying waybar config..."
 mkdir -p "$USER_HOME/.config/waybar"
 cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
 
-echo "Copying rofi config..."
-mkdir -p "$USER_HOME/.config/rofi"
-cp -r "$USER_HOME/hyprv1/configs/rofi/"* "$USER_HOME/.config/rofi/"
+# Skip rofi config copy since we're switching to tofi
 
 echo "Copying hyprlock config..."
 mkdir -p "$USER_HOME/.config/hypr"
