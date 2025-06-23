@@ -54,6 +54,7 @@ OFFICIAL_PKGS=(
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
   hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
+  bash-completion
 )
 
 echo "Installing official repo packages..."
@@ -149,8 +150,24 @@ if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
   echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
 fi
 
+### Install bash-autocomplete for inline suggestions
+if [ ! -d "$USER_HOME/.bash-autocomplete" ]; then
+  echo "Installing bash-autocomplete for bash autosuggestions..."
+  sudo -u "$SUDO_USER" git clone https://github.com/marlonrichert/bash-autocomplete.git "$USER_HOME/.bash-autocomplete"
+fi
+
+if ! grep -q 'bash-autocomplete.sh' "$BASHRC"; then
+  echo 'source ~/.bash-autocomplete/bash-autocomplete.sh' >> "$BASHRC"
+fi
+
+### Enable bash completion in bashrc (already installed via pacman above)
+if ! grep -q 'bash_completion' "$BASHRC"; then
+  echo -e "\n# Enable bash completion\nif [ -f /usr/share/bash-completion/bash_completion ]; then\n  . /usr/share/bash-completion/bash_completion\nfi" >> "$BASHRC"
+fi
+
 ### Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
+chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.bash-autocomplete"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
 ### Extract and install themes and icons
