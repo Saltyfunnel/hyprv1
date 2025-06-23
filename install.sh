@@ -7,7 +7,7 @@ LOG_FILE="$SCRIPT_DIR/install.log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "=== Starting Simple Hyprland Installation ==="
+echo "=== Starting Simple Hyprland Installation with Catppuccin Moch Theme ==="
 echo "Log file: $LOG_FILE"
 
 if [ "$EUID" -ne 0 ]; then
@@ -46,24 +46,28 @@ else
   echo "yay already installed"
 fi
 
-### Packages to install from official repos
+### Install official packages (Hyprland, utilities, fonts)
 OFFICIAL_PKGS=(
   pipewire wireplumber pamixer brightnessctl
-  ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code ttf-fira-mono ttf-fira-sans ttf-firacode-nerd
-  ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
+  ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code
+  ttf-fira-mono ttf-fira-sans ttf-firacode-nerd ttf-iosevka-nerd
+  ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
-  sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
-  mpv
+  sddm firefox unzip thunar thunar-archive-plugin thunar-volman
+  xarchiver tumbler gvfs kitty nano code fastfetch starship tar
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst
+  qt5-wayland qt6-wayland waybar cliphist
 )
 
 echo "Installing official repo packages..."
 pacman -S --noconfirm "${OFFICIAL_PKGS[@]}"
 
 ### Enable sddm service
-systemctl enable sddm.service
+echo "Enabling sddm service..."
+systemctl enable sddm.service --now
 
 ### Detect NVIDIA card and install drivers
+echo "Detecting NVIDIA card..."
 if lspci -k | grep -EA3 'VGA|3D|Display' | grep -i nvidia > /dev/null; then
   echo "NVIDIA card detected, installing NVIDIA drivers..."
   pacman -S --noconfirm nvidia nvidia-utils nvidia-settings lib32-nvidia-utils opencl-nvidia
@@ -71,53 +75,71 @@ else
   echo "No NVIDIA card detected, skipping NVIDIA drivers."
 fi
 
-### Packages to install from AUR via yay (with tofi replacing rofi)
+### Install AUR packages
 AUR_PKGS=(
-  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-dracula-git thefuck
+  tofi swww hyprpicker hyprlock wlogout grimblast hypridle
+  kvantum-theme-catppuccin-git
 )
 
-echo "Installing AUR packages with yay..."
+echo "Installing AUR packages..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
-### Copy configs and assets
+### Install Catppuccin Moch Theme
+echo "Installing Catppuccin Moch theme..."
+yay -S --noconfirm catppuccin-mocha-hyprland
 
-echo "Copying Hyprland config..."
+### Configure Hyprland and other programs to use the Catppuccin Moch theme
+
+echo "Configuring Hyprland to use Catppuccin Moch theme..."
 mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hyprland.conf" "$USER_HOME/.config/hypr/"
+cp "$USER_HOME/hyprv1/configs/hypr/hyprland.conf" "$USER_HOME/.config/hypr/"
 
-echo "Copying dunst config..."
-mkdir -p "$USER_HOME/.config/dunst"
-cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
+cat >> "$USER_HOME/.config/hypr/hyprland.conf" <<EOL
+# Hyprland Config for Catppuccin Moch
+exec hyprctl theme CatppuccinMoch
+EOL
 
-echo "Copying waybar config..."
+echo "Configuring Kvantum to use Catppuccin Moch theme..."
+mkdir -p "$USER_HOME/.config/Kvantum"
+echo "export KVANTUM_THEME=catppuccin-mocha" >> "$USER_HOME/.profile"
+
+echo "Configuring Tofi to use Catppuccin Moch theme..."
+mkdir -p "$USER_HOME/.config/tofi"
+echo "theme = catppuccin-mocha" > "$USER_HOME/.config/tofi/config"
+
+echo "Configuring Grimblast to use Catppuccin Moch theme..."
+mkdir -p "$USER_HOME/.config/grimblast"
+echo "theme = catppuccin-mocha" > "$USER_HOME/.config/grimblast/config"
+
+echo "Configuring Hyprlock to use Catppuccin Moch theme..."
+mkdir -p "$USER_HOME/.config/hyprlock"
+echo "theme = catppuccin-mocha" > "$USER_HOME/.config/hyprlock/config"
+
+echo "Configuring Wlogout to use Catppuccin Moch theme..."
+mkdir -p "$USER_HOME/.config/wlogout"
+echo "theme = catppuccin-mocha" > "$USER_HOME/.config/wlogout/config"
+
+### Copy the required assets and configs
+
+echo "Copying configuration files for Hyprland, Waybar, etc..."
 mkdir -p "$USER_HOME/.config/waybar"
 cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
 
-# Skip rofi config copy since we're switching to tofi
+mkdir -p "$USER_HOME/.config/kitty"
+cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
 
-echo "Copying hyprlock config..."
-mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hyprlock.conf" "$USER_HOME/.config/hypr/"
+mkdir -p "$USER_HOME/.config/wofi"
+cp -r "$USER_HOME/hyprv1/configs/wofi/"* "$USER_HOME/.config/wofi/"
 
-echo "Copying hypridle config..."
-mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
+mkdir -p "$USER_HOME/.config/dunst"
+cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
 
 echo "Copying sample wallpapers..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
 cp -r "$USER_HOME/hyprv1/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
 
-echo "Copying Kitty config..."
-mkdir -p "$USER_HOME/.config/kitty"
-cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
+### Finalizing setup
 
-### Copy logout menu script
-echo "Copying logout menu script..."
-mkdir -p "$USER_HOME/.config/scripts"
-cp -r "$USER_HOME/hyprv1/configs/scripts/logout-menu.sh" "$USER_HOME/.config/scripts/logout-menu.sh"
-chmod +x "$USER_HOME/.config/scripts/logout-menu.sh"
-
-### Set up Starship and Fastfetch
 echo "Setting up Starship and Fastfetch..."
 
 mkdir -p "$USER_HOME/.config"
@@ -141,41 +163,8 @@ if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 fi
 
-### Add logout menu keybind to Hyprland config
-HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
-
-if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
-  echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
-fi
-
-### Fix ownership
+### Set correct ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
-### Extract and install themes and icons
-
-echo "Installing Dracula GTK theme..."
-tar -xf "$USER_HOME/hyprv1/assets/themes/Dracula.tar.xz" -C /usr/share/themes/
-
-echo "Installing Tela Circle Dracula icon theme..."
-tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
-
-echo "Installing Bibata cursor theme..."
-tar -xf "$USER_HOME/hyprv1/assets/themes/Bibata-Modern-Ice.tar.xz" -C /usr/share/icons/
-
-echo "Setting up Kvantum Dracula theme..."
-# Already installed kvantum-theme-dracula-git from AUR above
-
-### Apply GTK, icon, and cursor theme using gsettings
-
-echo "Applying GTK, icon, and cursor themes for user $SUDO_USER..."
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
-
-echo "Restarting Thunar for theme to apply..."
-sudo -u "$SUDO_USER" pkill thunar || true
-sleep 2
-
-echo "All done! You can now log in to Hyprland."
-echo "========================================"
+echo "All done! You can now reboot and enjoy your new environment."
