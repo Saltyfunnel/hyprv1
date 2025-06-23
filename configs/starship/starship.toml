@@ -1,4 +1,18 @@
-palette = "dracula"
+# Palette for Catppuccin Mocha 🌿 theme
+[palettes.catppuccin_mocha]
+background = "#1E1E2E"
+current_line = "#2A2A37"
+foreground = "#CDD6F4"
+comment = "#8C8F96"
+cyan = "#94E2D5"
+green = "#A6E3A1"
+orange = "#F9E2AF"
+pink = "#F5C2E7"
+purple = "#CBA6F7"
+red = "#F38BA8"
+yellow = "#F9E2AF"
+
+# Prompt segments
 
 [aws]
 style = "bold orange"
@@ -26,16 +40,11 @@ style = "bold purple"
 format = "[$user]($style) on "
 style_user = "bold cyan"
 
-# Define Dracula color palette
-[palettes.dracula]
-background = "#282a36"
-current_line = "#44475a"
-foreground = "#f8f8f2"
-comment = "#6272a4"
-cyan = "#8be9fd"
-green = "#50fa7b"
-orange = "#ffb86c"
-pink = "#ff79c6"
-purple = "#bd93f9"
-red = "#ff5555"
-yellow = "#f1fa8c"
+# Git branch formatting
+[git_branch]
+style = "bold pink"
+format = "on [$branch]($style)"
+
+# Define colors for the prompt segments
+[cmd_duration]
+style = "bold yellow"
