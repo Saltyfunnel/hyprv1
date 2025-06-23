@@ -72,7 +72,7 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck bash-autosuggestions
+  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
 )
 
 echo "Installing AUR packages with yay..."
@@ -112,6 +112,12 @@ echo "Copying Kitty config..."
 mkdir -p "$USER_HOME/.config/kitty"
 cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
 
+### Copy logout menu script
+echo "Copying logout menu script..."
+mkdir -p "$USER_HOME/.config/scripts"
+cp -r "$USER_HOME/hyprv1/configs/scripts/logout-menu.sh" "$USER_HOME/.config/scripts/logout-menu.sh"
+chmod +x "$USER_HOME/.config/scripts/logout-menu.sh"
+
 ### Set up Starship and Fastfetch
 echo "Setting up Starship and Fastfetch..."
 
@@ -123,31 +129,25 @@ cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfet
 
 BASHRC="$USER_HOME/.bashrc"
 
-# Add TheFuck to bashrc
+# Add TheFuck, Starship, and Fastfetch into bashrc
 if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
   echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
 fi
 
-# Add Starship to bashrc
 if ! grep -q 'starship init bash' "$BASHRC"; then
   echo 'eval "$(starship init bash)"' >> "$BASHRC"
 fi
 
-# Add fastfetch info to bashrc
 if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 fi
 
-# Add bash-autosuggestions to bashrc
-AUTOSUGGESTIONS_DIR="$USER_HOME/.local/share/bash-autosuggestions"
-if ! grep -q 'bash-autosuggestions' "$BASHRC"; then
-  echo -e "\n# Enable bash-autosuggestions\nsource $AUTOSUGGESTIONS_DIR/bash-autosuggestions.bash" >> "$BASHRC"
-fi
+### Add logout menu keybind to Hyprland config
+HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
 
-echo "Setting up bash-autosuggestions..."
-mkdir -p "$AUTOSUGGESTIONS_DIR"
-cp -r /usr/share/bash-autosuggestions/bash-autosuggestions.bash "$AUTOSUGGESTIONS_DIR/"
-chown -R "$SUDO_USER:$SUDO_USER" "$AUTOSUGGESTIONS_DIR"
+if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
+  echo 'bind = SUPER+SHIFT+e, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
+fi
 
 ### Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
