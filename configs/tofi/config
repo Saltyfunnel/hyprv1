@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="$SCRIPT_DIR/install.log"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "=== Starting Simple Hyprland Installation ==="
+echo "Log file: $LOG_FILE"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this script with sudo."
+  exit 1
+fi
+
+if [ -z "${SUDO_USER:-}" ]; then
+  echo "Run this script using sudo, e.g. sudo bash install.sh"
+  exit 1
+fi
+
+USER_HOME=$(eval echo "~$SUDO_USER")
+echo "Installing as user: $SUDO_USER"
+echo "User home directory: $USER_HOME"
+
+### Update system first
+echo "Updating system..."
+pacman -Syyu --noconfirm
+
+### Install base-devel and git (needed for yay)
+echo "Installing base-devel and git..."
+pacman -S --noconfirm base-devel git
+
+### Install yay as $SUDO_USER if not installed
+if ! command -v yay &> /dev/null; then
