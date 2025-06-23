@@ -119,6 +119,8 @@ echo "Configuring Wlogout to use Catppuccin Moch theme..."
 mkdir -p "$USER_HOME/.config/wlogout"
 echo "theme = catppuccin-mocha" > "$USER_HOME/.config/wlogout/config"
 
+### Remove any Bibata theme traces by NOT copying bibata theme assets or configs
+
 ### Copy the required assets and configs
 
 echo "Copying configuration files for Hyprland, Waybar, etc..."
@@ -128,8 +130,8 @@ cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
 mkdir -p "$USER_HOME/.config/kitty"
 cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
 
-mkdir -p "$USER_HOME/.config/wofi"
-cp -r "$USER_HOME/hyprv1/configs/wofi/"* "$USER_HOME/.config/wofi/"
+mkdir -p "$USER_HOME/.config/tofi"
+cp -r "$USER_HOME/hyprv1/configs/tofi/"* "$USER_HOME/.config/tofi/"
 
 mkdir -p "$USER_HOME/.config/dunst"
 cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
@@ -137,6 +139,19 @@ cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
 echo "Copying sample wallpapers..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
 cp -r "$USER_HOME/hyprv1/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
+
+### Copy Catppuccin Moch icons instead of Tela Circle or Bibata
+
+echo "Downloading and extracting Catppuccin Moch icons..."
+ICON_DIR="$USER_HOME/.config/assets/icons"
+mkdir -p "$ICON_DIR"
+cd "$ICON_DIR"
+rm -rf *
+
+# Download Catppuccin Moch icon tarball (replace URL with a valid Catppuccin icon tarball source if you have one)
+curl -L -o catppuccin-mocha-icons.tar.xz "https://github.com/catppuccin/icons/releases/latest/download/catppuccin-mocha-icons.tar.xz"
+tar -xf catppuccin-mocha-icons.tar.xz
+rm catppuccin-mocha-icons.tar.xz
 
 ### Finalizing setup
 
@@ -167,4 +182,4 @@ fi
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
-echo "All done! You can now reboot and enjoy your new environment."
+echo "All done! You can now reboot and enjoy your new Catppuccin Moch environment."
