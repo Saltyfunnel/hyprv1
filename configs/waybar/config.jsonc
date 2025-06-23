@@ -81,12 +81,12 @@
         "format-icons": ["󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
 
-"power": {
-    "exec": "echo 'Power Menu'",
-    "on-click": "~/.config/scripts/logout-menu.sh",
-    "format": "⏻",
-    "icon": "⏻"  // example power icon, adjust as you like
-}
+    "power": {
+        "exec": "echo 'Power Menu'",
+        "on-click": "~/.config/scripts/logout-menu.sh",
+        "format": "⏻",
+        "icon": "⏻"
+    },
 
     "pulseaudio": {
         "format": "{icon}  {volume}%",
