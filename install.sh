@@ -104,17 +104,6 @@ echo "Copying hypridle config..."
 mkdir -p "$USER_HOME/.config/hypr"
 cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
 
-echo "Copying wlogout config and assets with Catppuccin theme..."
-
-mkdir -p "$USER_HOME/.config/wlogout"
-cp "$USER_HOME/hyprv1/configs/wlogout/layout" "$USER_HOME/.config/wlogout/layout"
-cp "$USER_HOME/hyprv1/configs/wlogout/style.css" "$USER_HOME/.config/wlogout/style.css"
-
-mkdir -p "$USER_HOME/.config/wlogout/assets"
-cp -r "$USER_HOME/hyprv1/assets/wlogout/"* "$USER_HOME/.config/wlogout/assets/"
-
-chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config/wlogout"
-
 echo "Copying sample wallpapers..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
 cp -r "$USER_HOME/hyprv1/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
