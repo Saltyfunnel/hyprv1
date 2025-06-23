@@ -1,13 +1,13 @@
-/* Dracula theme for rofi */
+/* Dracula theme for Rofi */
 
 configuration {
     modi: "drun,run,window";
     show-icons: true;
-    icon-theme: "Tela-circle-dracula";  /* match your icon theme */
+    icon-theme: "Tela-circle-dracula";
     font: "Fira Code 12";
     sidebar-mode: false;
-    scroll-method: "default";
-    fixed-height: 30;
+    scroll-method: 1;
+    fixed-height: true;
     width: 750px;
     lines: 10;
     columns: 2;
@@ -20,50 +20,95 @@ configuration {
     hide-scrollbar: true;
 }
 
-window {
-    background: #282a36ff;   /* dracula background */
-    border-radius: 10px;
-    border: 2px solid #44475a;
-    padding: 10px;
-    color: #f8f8f2;
+/* Dracula color palette */
+* {
+    background:    #282a36ff;
+    foreground:    #f8f8f2ff;
+    border-color:  #44475aff;
+    selected:      #44475aff;
+    active:        #bd93f9ff;
+    urgent:        #ff5555ff;
 }
 
+window {
+    background: #282a36ff;
+    border: 2;
+    border-color: #6272a4ff;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Prompt and input */
+mainbox {
+    children: [inputbar, listview];
+    spacing: 10px;
+}
+
+inputbar {
+    background-color: #44475aff;
+    text-color:       #f8f8f2ff;
+    padding:          6px;
+    border:           1;
+    border-color:     #6272a4ff;
+    border-radius:    8px;
+}
+
+prompt {
+    text-color: #bd93f9ff;
+    padding: 4px;
+}
+
+textbox-prompt-colon {
+    text-color: #ff79c6ff;
+}
+
+/* List of results */
 listview {
-    background: transparent;
-    border: none;
-    border-radius: 10px;
-    padding: 0px;
+    background-color: #282a36ff;
+    padding: 4px 0;
+    lines: 10;
+    columns: 2;
+    spacing: 6px;
+    scrollbar: false;
+    dynamic: true;
+    border: 0;
 }
 
 element {
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: none;
-    text-color: #f8f8f2;
-}
-
-element:selected {
-    background: #6272a4;
-    text-color: #f8f8f2;
-}
-
-textbox {
-    background: #44475a;
-    border-radius: 5px;
+    background-color: inherit;
+    text-color: #f8f8f2ff;
     padding: 6px 10px;
-    text-color: #f8f8f2;
-    font-size: 16px;
-    border: none;
+    border-radius: 6px;
 }
 
-/* Scrollbar - hidden */
+element selected {
+    background-color: #44475aff;
+    text-color: #ff79c6ff;
+}
+
+element urgent {
+    text-color: #ff5555ff;
+}
+
+element active {
+    text-color: #50fa7bff;
+}
+
+/* Matching highlight */
+element-text {
+    highlight: #8be9fdff;
+}
+
+/* Message area */
+message {
+    background-color: #282a36ff;
+    text-color: #ff5555ff;
+}
+
+/* Scrollbar (if shown) */
 scrollbar {
-    border-radius: 5px;
-    background-color: transparent;
-}
-
-/* Prompt */
-prompt {
-    text-color: #bd93f9;
-    font-weight: bold;
+    width: 6px;
+    border: 0;
+    handle-color: #bd93f9ff;
+    handle-width: 4px;
 }
