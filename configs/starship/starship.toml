@@ -1,13 +1,30 @@
-# ~/hyprv1/configs/starship/starship.toml
-add_newline = true
-
-format = """
-[](mauve)$username[](bg:lavender fg:mauve)$directory[](bg:maroon fg:lavender)$git_branch$git_status[](fg:maroon bg:base)$python$nodejs
-[](fg:base bg:base)$character
-"""
-
-# Use the color palette
 palette = "dracula"
+
+[aws]
+style = "bold orange"
+
+[character]
+error_symbol = "[λ](bold red)"
+success_symbol = "[λ](bold green)"
+
+[cmd_duration]
+style = "bold yellow"
+
+[directory]
+style = "bold green"
+
+[git_branch]
+style = "bold pink"
+
+[git_status]
+style = "bold red"
+
+[hostname]
+style = "bold purple"
+
+[username]
+format = "[$user]($style) on "
+style_user = "bold cyan"
 
 # Define Dracula color palette
 [palettes.dracula]
