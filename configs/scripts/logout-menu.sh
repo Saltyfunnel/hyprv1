@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CHOICE=$(printf "Logout\nReboot\nShutdown\nSuspend\nCancel" | wofi --dmenu --prompt "Select action:")
+CHOICE=$(printf "Logout\nReboot\nShutdown\nSuspend\nCancel" | wofi --dmenu --prompt "Select action:" --style ~/.config/wofi/style.css)
 
 case "$CHOICE" in
   Logout)
