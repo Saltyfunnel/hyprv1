@@ -1,0 +1,69 @@
+/* Dracula theme for rofi */
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Tela-circle-dracula";  /* match your icon theme */
+    font: "Fira Code 12";
+    sidebar-mode: false;
+    scroll-method: "default";
+    fixed-height: 30;
+    width: 750px;
+    lines: 10;
+    columns: 2;
+    terminal: "kitty";
+    run-command: "{cmd}";
+    run-list-command: "~/.config/rofi/scripts/run-list.sh";
+    cache-dir: "~/.cache/rofi";
+    always-show-scrollbar: false;
+    show-scrollbar: false;
+    hide-scrollbar: true;
+}
+
+window {
+    background: #282a36ff;   /* dracula background */
+    border-radius: 10px;
+    border: 2px solid #44475a;
+    padding: 10px;
+    color: #f8f8f2;
+}
+
+listview {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 0px;
+}
+
+element {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    text-color: #f8f8f2;
+}
+
+element:selected {
+    background: #6272a4;
+    text-color: #f8f8f2;
+}
+
+textbox {
+    background: #44475a;
+    border-radius: 5px;
+    padding: 6px 10px;
+    text-color: #f8f8f2;
+    font-size: 16px;
+    border: none;
+}
+
+/* Scrollbar - hidden */
+scrollbar {
+    border-radius: 5px;
+    background-color: transparent;
+}
+
+/* Prompt */
+prompt {
+    text-color: #bd93f9;
+    font-weight: bold;
+}
