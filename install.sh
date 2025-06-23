@@ -53,7 +53,7 @@ OFFICIAL_PKGS=(
   ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist bash-completion
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
 )
 
 echo "Installing official repo packages..."
@@ -77,15 +77,6 @@ AUR_PKGS=(
 
 echo "Installing AUR packages with yay..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
-
-### Install bash-autocomplete for inline suggestions (no git clone)
-if [ ! -d "$USER_HOME/.bash-autocomplete" ]; then
-  echo "Downloading bash-autocomplete release archive..."
-  sudo -u "$SUDO_USER" curl -L -o /tmp/bash-autocomplete.zip https://github.com/marlonrichert/bash-autocomplete/archive/refs/heads/main.zip
-  sudo -u "$SUDO_USER" unzip /tmp/bash-autocomplete.zip -d "$USER_HOME"
-  sudo -u "$SUDO_USER" mv "$USER_HOME/bash-autocomplete-main" "$USER_HOME/.bash-autocomplete"
-  rm /tmp/bash-autocomplete.zip
-fi
 
 ### Copy configs and assets
 
@@ -138,7 +129,7 @@ cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfet
 
 BASHRC="$USER_HOME/.bashrc"
 
-# Add TheFuck, Starship, Fastfetch, and bash-autocomplete into bashrc
+# Add TheFuck, Starship, and Fastfetch into bashrc
 if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
   echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
 fi
@@ -151,10 +142,6 @@ if ! grep -q 'fastfetch' "$BASHRC"; then
   echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 fi
 
-if ! grep -q 'bash-autocomplete' "$BASHRC"; then
-  echo -e '\n# Enable bash-autocomplete\nif [ -f "$HOME/.bash-autocomplete/bash-autocomplete.sh" ]; then\n  source "$HOME/.bash-autocomplete/bash-autocomplete.sh"\nfi' >> "$BASHRC"
-fi
-
 ### Add logout menu keybind to Hyprland config
 HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
 
@@ -165,7 +152,6 @@ fi
 ### Fix ownership
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
-chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.bash-autocomplete"
 
 ### Extract and install themes and icons
 
