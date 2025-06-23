@@ -8,19 +8,19 @@
   "height": 0,
 
   "colors": {
-    "background": "#282a36",
-    "statusline": "#44475a",
-    "separator": "#6272a4",
-    "focused_background": "#44475a",
-    "focused_statusline": "#bd93f9",
-    "focused_separator": "#bd93f9",
-    "urgent": "#ff5555",
-    "urgent_background": "#ff5555",
-    "warning": "#ffb86c",
-    "warning_background": "#ffb86c",
-    "battery_good": "#50fa7b",
-    "battery_warning": "#f1fa8c",
-    "battery_critical": "#ff5555"
+    "background": "#1E1E2E",  // Catppuccin Mocha background
+    "statusline": "#CDD6F4",  // Catppuccin Mocha foreground
+    "separator": "#6272A4",  // Soft grey-blue separator
+    "focused_background": "#44475A", // Focused background
+    "focused_statusline": "#F5C2E7",  // Soft pastel magenta for focused text
+    "focused_separator": "#F5C2E7",  // Separator color for focused window
+    "urgent": "#F38BA8",  // Urgent status (pink)
+    "urgent_background": "#F38BA8",  // Urgent background (pink)
+    "warning": "#F9E2AF",  // Soft yellow for warning
+    "warning_background": "#F9E2AF",  // Warning background color
+    "battery_good": "#A6E3A1",  // Soft green for battery good
+    "battery_warning": "#F9E2AF",  // Yellow warning for battery
+    "battery_critical": "#F38BA8"  // Red critical for battery
   },
 
   "modules-left": [
@@ -42,7 +42,9 @@
   ],
 
   "hyprland/window": {
-    "format": "󰣇 {}"
+    "format": "󰣇 {}",
+    "background": "#1E1E2E",
+    "foreground": "#CDD6F4"
   },
 
   "hyprland/workspaces": {
@@ -73,10 +75,10 @@
       "on-scroll": 1,
       "on-click-right": "mode",
       "format": {
-        "months": "<span color='#6272a4'><b>{}</b></span>",
-        "weekdays": "<span color='#6272a4'><b>{}</b></span>",
-        "today": "<span color='#6272a4'><b>{}</b></span>",
-        "days": "<span color='#44475a'><b>{}</b></span>"
+        "months": "<span color='#F5C2E7'><b>{}</b></span>",
+        "weekdays": "<span color='#F5C2E7'><b>{}</b></span>",
+        "today": "<span color='#F5C2E7'><b>{}</b></span>",
+        "days": "<span color='#44475A'><b>{}</b></span>"
       }
     }
   },
@@ -164,7 +166,7 @@
     "format-linked": "󰈀 {ifname} (No IP)",
     "format-disconnected": "󰖪 ",
     "tooltip-format-disconnected": "Disconnected",
-    "format-alt": "<span foreground='#99ffdd'> {bandwidthDownBytes}</span> <span foreground='#ffcc66'> {bandwidthUpBytes}</span>",
+    "format-alt": "<span foreground='#99FFDD'> {bandwidthDownBytes}</span> <span foreground='#FFCC66'> {bandwidthUpBytes}</span>",
     "interval": 2
   }
 }
