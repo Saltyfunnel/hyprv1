@@ -62,6 +62,26 @@ pacman -S --noconfirm "${OFFICIAL_PKGS[@]}"
 ### Enable sddm service
 systemctl enable sddm.service
 
+### Install and configure SDDM theme
+echo "Installing Catppuccin SDDM theme..."
+tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha-sddm.tar.xz" -C /usr/share/sddm/themes/
+
+echo "Setting SDDM theme to Catppuccin-Mocha..."
+if [ ! -f /etc/sddm.conf ]; then
+  echo "[Theme]" > /etc/sddm.conf
+  echo "Current=Catppuccin-Mocha" >> /etc/sddm.conf
+else
+  if grep -q "^Current=" /etc/sddm.conf; then
+    sed -i "s/^Current=.*/Current=Catppuccin-Mocha/" /etc/sddm.conf
+  else
+    if grep -q "^\[Theme\]" /etc/sddm.conf; then
+      sed -i "/^\[Theme\]/a Current=Catppuccin-Mocha" /etc/sddm.conf
+    else
+      echo -e "\n[Theme]\nCurrent=Catppuccin-Mocha" >> /etc/sddm.conf
+    fi
+  fi
+fi
+
 ### Detect NVIDIA card and install drivers
 if lspci -k | grep -EA3 'VGA|3D|Display' | grep -i nvidia > /dev/null; then
   echo "NVIDIA card detected, installing NVIDIA drivers..."
