@@ -54,6 +54,8 @@ OFFICIAL_PKGS=(
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
   hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
+
+  mpv   # Added mpv media player here
 )
 
 echo "Installing official repo packages..."
