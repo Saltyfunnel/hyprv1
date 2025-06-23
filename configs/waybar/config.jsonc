@@ -22,8 +22,7 @@
         "backlight",
         "pulseaudio",
         "pulseaudio#microphone",
-        "custom/power"
-    ],
+        ],
 
     "hyprland/window": {
         "format": "󰣇 {}"
@@ -79,13 +78,6 @@
         "format-plugged": " {capacity}%",
         "format-alt": "{time} {icon}",
         "format-icons": ["󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
-    },
-
-    "custom/power": {
-        "exec": "echo '⏻'",
-        "on-click": "~/.config/scripts/logout-menu.sh",
-        "format": "⏻",
-        "icon": "⏻"
     },
 
     "pulseaudio": {
