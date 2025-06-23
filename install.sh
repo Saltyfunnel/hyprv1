@@ -72,18 +72,34 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck sddm-theme-catppuccin
+  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+  sddm-theme-catppuccin
 )
 
 echo "Installing AUR packages with yay..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
-### Set SDDM theme to Catppuccin
+### Configure SDDM theme to Catppuccin
 echo "Setting SDDM theme to Catppuccin..."
+
+# Create /etc/sddm.conf if it doesn't exist
 if [ ! -f /etc/sddm.conf ]; then
   sddm --example-config > /etc/sddm.conf
 fi
-sed -i 's/^Current=.*/Current=catppuccin/' /etc/sddm.conf
+
+# Replace or add the Current=catppuccin line under [Theme]
+if grep -q "^\[Theme\]" /etc/sddm.conf; then
+  if grep -q "^Current=" /etc/sddm.conf; then
+    sed -i "s/^Current=.*/Current=catppuccin/" /etc/sddm.conf
+  else
+    sed -i "/^\[Theme\]/a Current=catppuccin" /etc/sddm.conf
+  fi
+else
+  echo -e "[Theme]\nCurrent=catppuccin" >> /etc/sddm.conf
+fi
+
+echo "Restarting SDDM service to apply theme..."
+systemctl restart sddm
 
 ### Copy configs and assets
 
