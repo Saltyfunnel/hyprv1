@@ -53,7 +53,7 @@ OFFICIAL_PKGS=(
   ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
   ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
   sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist rofi  # switched wofi->rofi
 
   mpv   # Added mpv media player here
 )
@@ -74,7 +74,8 @@ fi
 
 ### Packages to install from AUR via yay
 AUR_PKGS=(
-  wofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+  # replaced wofi with rofi-wayland if you want AUR version, else you can remove it
+  rofi-wayland-git swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-dracula-git thefuck
 )
 
 echo "Installing AUR packages with yay..."
@@ -94,9 +95,9 @@ echo "Copying waybar config..."
 mkdir -p "$USER_HOME/.config/waybar"
 cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
 
-echo "Copying wofi config..."
-mkdir -p "$USER_HOME/.config/wofi"
-cp -r "$USER_HOME/hyprv1/configs/wofi/"* "$USER_HOME/.config/wofi/"
+echo "Copying rofi config..."
+mkdir -p "$USER_HOME/.config/rofi"
+cp -r "$USER_HOME/hyprv1/configs/rofi/"* "$USER_HOME/.config/rofi/"
 
 echo "Copying hyprlock config..."
 mkdir -p "$USER_HOME/.config/hypr"
@@ -157,8 +158,8 @@ chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
 ### Extract and install themes and icons
 
-echo "Installing Catppuccin-Mocha GTK theme..."
-tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
+echo "Installing Dracula GTK theme..."
+tar -xf "$USER_HOME/hyprv1/assets/themes/Dracula.tar.xz" -C /usr/share/themes/
 
 echo "Installing Tela Circle Dracula icon theme..."
 tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
@@ -166,13 +167,13 @@ tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/shar
 echo "Installing Bibata cursor theme..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Bibata-Modern-Ice.tar.xz" -C /usr/share/icons/
 
-echo "Setting up Kvantum Catppuccin theme..."
-# Already installed kvantum-theme-catppuccin-git from AUR above
+echo "Setting up Kvantum Dracula theme..."
+# Already installed kvantum-theme-dracula-git from AUR above
 
 ### Apply GTK, icon, and cursor theme using gsettings
 
 echo "Applying GTK, icon, and cursor themes for user $SUDO_USER..."
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
 
