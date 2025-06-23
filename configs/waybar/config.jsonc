@@ -81,12 +81,12 @@
         "format-icons": ["󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
 
-    "custom/power": {
-        "format": "⏻",
-        "tooltip": "Shutdown system",
-        "on-click": "systemctl poweroff",
-        "interval": 0
-    },
+"power": {
+    "exec": "echo 'Power Menu'",
+    "on-click": "~/.config/scripts/logout-menu.sh",
+    "format": "⏻",
+    "icon": "⏻"  // example power icon, adjust as you like
+}
 
     "pulseaudio": {
         "format": "{icon}  {volume}%",
