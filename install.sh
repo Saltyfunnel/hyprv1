@@ -146,7 +146,7 @@ fi
 HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
 
 if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
-  echo 'bind = SUPER+SHIFT+e, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
+  echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
 fi
 
 ### Fix ownership
