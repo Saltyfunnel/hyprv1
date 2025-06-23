@@ -81,8 +81,8 @@
         "format-icons": ["󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
 
-    "power": {
-        "exec": "echo 'Power Menu'",
+    "custom/power": {
+        "exec": "echo '⏻'",
         "on-click": "~/.config/scripts/logout-menu.sh",
         "format": "⏻",
         "icon": "⏻"
