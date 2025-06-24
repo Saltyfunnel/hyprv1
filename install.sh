@@ -3,12 +3,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_FILE="$SCRIPT_DIR/install.log"
+LOG_FILE="$SCRIPT_DIR/full-install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-THEME_NAME="Catppuccin-Mocha" # Adjust this if needed after install
+echo "=== Full Hyprland + Catppuccin SDDM Setup ==="
 
-### Ensure root
+# Check root
 if [ "$EUID" -ne 0 ]; then
   echo "Please run this script with sudo."
   exit 1
@@ -20,127 +20,143 @@ if [ -z "${SUDO_USER:-}" ]; then
 fi
 
 USER_HOME=$(eval echo "~$SUDO_USER")
-echo "Installing as user: $SUDO_USER"
-echo "User home directory: $USER_HOME"
+BASHRC="$USER_HOME/.bashrc"
+echo "Installing for user: $SUDO_USER"
+echo "User home: $USER_HOME"
 
-### Update system
-pacman -Syu --noconfirm
+### --- System Update ---
+echo "Updating system..."
+pacman -Syyu --noconfirm
 
-### Install base-devel and git
+### --- Base Deps ---
+echo "Installing base-devel and git..."
 pacman -S --noconfirm base-devel git
 
-### Install yay if not present
+### --- yay installation ---
 if ! command -v yay &> /dev/null; then
-  echo "yay not found, installing..."
+  echo "Installing yay..."
   cd "$USER_HOME"
-  sudo -u "$SUDO_USER" bash -c '
+  sudo -u "$SUDO_USER" bash -c "
     git clone https://aur.archlinux.org/yay.git
     cd yay
     makepkg -si --noconfirm
-  '
+  "
 fi
 
-### Install Hyprland-related official packages
-pacman -S --noconfirm \
-  pipewire wireplumber pamixer brightnessctl \
-  ttf-cascadia-code-nerd ttf-fira-code ttf-jetbrains-mono-nerd \
-  sddm firefox unzip thunar thunar-archive-plugin \
-  kitty nano code fastfetch starship tar \
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent \
-  dunst qt5-wayland qt6-wayland waybar cliphist cava
+### --- Official Packages ---
+OFFICIAL_PKGS=(
+  pipewire wireplumber pamixer brightnessctl
+  ttf-cascadia-code-nerd ttf-fira-code ttf-jetbrains-mono ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
+  sddm firefox unzip thunar kitty nano code fastfetch starship tar
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist cava
+)
 
-### Install SDDM Catppuccin theme
-sudo -u "$SUDO_USER" yay -S --noconfirm sddm-catppuccin-git
+echo "Installing official packages..."
+pacman -S --noconfirm "${OFFICIAL_PKGS[@]}"
 
-# Verify theme directory exists
-if [ ! -d "/usr/share/sddm/themes/$THEME_NAME" ]; then
-  echo "ERROR: Catppuccin SDDM theme not found at /usr/share/sddm/themes/$THEME_NAME"
+### --- Enable SDDM ---
+systemctl enable sddm.service
+
+### --- NVIDIA Drivers if needed ---
+if lspci | grep -i nvidia > /dev/null; then
+  echo "Installing NVIDIA drivers..."
+  pacman -S --noconfirm nvidia nvidia-utils nvidia-settings lib32-nvidia-utils opencl-nvidia
+fi
+
+### --- AUR Packages ---
+AUR_PKGS=(
+  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+  sddm-theme-catppuccin
+)
+
+echo "Installing AUR packages..."
+sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
+
+### --- Detect Catppuccin SDDM Theme ---
+THEME_DIR=$(find /usr/share/sddm/themes -maxdepth 1 -type d -name 'catppuccin*' | head -n 1)
+THEME_NAME=$(basename "$THEME_DIR")
+
+if [ ! -d "$THEME_DIR" ]; then
+  echo "ERROR: Catppuccin SDDM theme not found."
   exit 1
 fi
 
-# Create /etc/sddm.conf if missing
+echo "Detected Catppuccin theme: $THEME_NAME"
+
+### --- Configure SDDM Theme ---
 if [ ! -f /etc/sddm.conf ]; then
+  echo "Creating default /etc/sddm.conf..."
   sddm --example-config > /etc/sddm.conf
 fi
 
-# Set Catppuccin theme in sddm.conf
 if grep -q "^\[Theme\]" /etc/sddm.conf; then
-  if grep -q "^Current=" /etc/sddm.conf; then
-    sed -i "s/^Current=.*/Current=$THEME_NAME/" /etc/sddm.conf
-  else
-    sed -i "/^\[Theme\]/a Current=$THEME_NAME" /etc/sddm.conf
-  fi
+  sed -i "/^\[Theme\]/,/^\[/ s/^Current=.*/Current=$THEME_NAME/" /etc/sddm.conf || \
+  sed -i "/^\[Theme\]/a Current=$THEME_NAME" /etc/sddm.conf
 else
-  echo -e "[Theme]\nCurrent=$THEME_NAME" >> /etc/sddm.conf
+  echo -e "\n[Theme]\nCurrent=$THEME_NAME" >> /etc/sddm.conf
 fi
 
-# Enable SDDM
-systemctl enable sddm.service
-systemctl restart sddm.service
+### --- Copy Configs ---
+CONFIG_SRC="$USER_HOME/hyprv1"
 
-### Install AUR packages
-sudo -u "$SUDO_USER" yay -S --noconfirm tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+declare -A CONFIGS=(
+  [hypr]="$CONFIG_SRC/configs/hypr"
+  [dunst]="$CONFIG_SRC/configs/dunst"
+  [waybar]="$CONFIG_SRC/configs/waybar"
+  [tofi]="$CONFIG_SRC/configs/tofi"
+  [kitty]="$CONFIG_SRC/configs/kitty"
+)
 
-### Copy config files (adjust paths accordingly)
-mkdir -p "$USER_HOME/.config/hypr"
-cp "$USER_HOME/hyprv1/configs/hypr/hyprland.conf" "$USER_HOME/.config/hypr/"
-cp "$USER_HOME/hyprv1/configs/hypr/hyprlock.conf" "$USER_HOME/.config/hypr/"
-cp "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
-mkdir -p "$USER_HOME/.config/dunst"
-cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
-mkdir -p "$USER_HOME/.config/waybar"
-cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
-mkdir -p "$USER_HOME/.config/tofi"
-cp -r "$USER_HOME/hyprv1/configs/tofi/"* "$USER_HOME/.config/tofi/"
+for key in "${!CONFIGS[@]}"; do
+  echo "Copying $key config..."
+  mkdir -p "$USER_HOME/.config/$key"
+  cp -r "${CONFIGS[$key]}"/* "$USER_HOME/.config/$key/" || true
+done
+
+cp "$CONFIG_SRC/configs/hypr/hyprlock.conf" "$USER_HOME/.config/hypr/"
+cp "$CONFIG_SRC/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
+
+echo "Copying assets (wallpapers)..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
-cp -r "$USER_HOME/hyprv1/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
-mkdir -p "$USER_HOME/.config/kitty"
-cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
+cp -r "$CONFIG_SRC/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
 
+echo "Setting wallpaper via swww..."
+sudo -u "$SUDO_USER" swww init || true
+sudo -u "$SUDO_USER" swww img "$USER_HOME/.config/assets/backgrounds/your-wallpaper.jpg" || true
+
+### --- Starship & Fastfetch ---
+echo "Setting up Starship and Fastfetch..."
 mkdir -p "$USER_HOME/.config"
-cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
+cp "$CONFIG_SRC/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
 mkdir -p "$USER_HOME/.config/fastfetch"
-cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
+cp "$CONFIG_SRC/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
 
-### Add to .bashrc
-BASHRC="$USER_HOME/.bashrc"
-if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
-  echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
-fi
-if ! grep -q 'starship init bash' "$BASHRC"; then
-  echo 'eval "$(starship init bash)"' >> "$BASHRC"
-fi
-if ! grep -q 'fastfetch' "$BASHRC"; then
-  echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
-fi
+# Bashrc additions
+grep -qxF 'eval "$(thefuck --alias)"' "$BASHRC" || echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
+grep -qxF 'eval "$(starship init bash)"' "$BASHRC" || echo 'eval "$(starship init bash)"' >> "$BASHRC"
+grep -q 'fastfetch' "$BASHRC" || echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 
-# Hyprland logout menu keybind
+### --- Add logout keybind ---
 HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
-if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
-  echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
-fi
+grep -q 'logout-menu.sh' "$HYPR_CONF" || echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
 
-# Fix ownership
+### --- Fix Ownership ---
+echo "Fixing config file ownerships..."
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
 
-### Themes and icons
-mkdir -p /usr/share/themes /usr/share/icons
+### --- Themes and Icons ---
+echo "Installing GTK and icon themes..."
+tar -xf "$CONFIG_SRC/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
+tar -xf "$CONFIG_SRC/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
 
-# GTK theme
-tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
-# Icon theme
-tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
+### --- Apply Themes via GSettings ---
+echo "Applying GTK + icon theme..."
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
 
-# GTK theme apply
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme "$THEME_NAME"
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme "Tela-circle-dracula"
+### --- Finish ---
+echo "Restarting SDDM..."
+systemctl restart sddm
 
-# Permissions fix for session file
-chmod 644 /usr/share/wayland-sessions/hyprland.desktop
-chown root:root /usr/share/wayland-sessions/hyprland.desktop
-
-# Wallpaper (requires swww and running session)
-echo "Ensure swww is set to autostart in Hyprland config to load wallpaper after login."
-echo "All done! Reboot and login to Hyprland."
-exit 0
+echo "✅ All done! You can now log in to Hyprland."
