@@ -22,8 +22,8 @@
         "backlight",
         "pulseaudio",
         "pulseaudio#microphone",
-        "custom/power",
-        ],
+        "custom/power"
+    ],
 
     "hyprland/window": {
         "format": "󰣇 {}"
@@ -134,12 +134,12 @@
         "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
     },
 
-"custom/power": {
-  "format": "⏻",
-  "tooltip": "Left click to shut down, right click to reboot",
-  "on-click": "~/.config/scripts/power-button.sh left",
-  "on-click-right": "~/.config/scripts/power-button.sh right"
-},
+    "custom/power": {
+        "format": "⏻",
+        "tooltip": "Left click to shut down, right click to reboot",
+        "on-click": "/home/gerard/.config/scripts/power-button.sh left",
+        "on-click-right": "/home/gerard/.config/scripts/power-button.sh right"
+    },
 
     "network": {
         "tooltip": true,
