@@ -22,6 +22,7 @@
         "backlight",
         "pulseaudio",
         "pulseaudio#microphone",
+        "modules-right": ["custom/power", ...]
         ],
 
     "hyprland/window": {
