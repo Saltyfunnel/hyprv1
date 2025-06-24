@@ -136,6 +136,7 @@
 
     "custom/power": {
         "format": "⏻",
+        "tooltip": true,
         "tooltip": "Left click to shut down, right click to reboot",
         "on-click": "systemctl poweroff",
         "on-click-right": "systemctl reboot"
