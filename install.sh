@@ -3,11 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_FILE="$SCRIPT_DIR/install.log"
-
+LOG_FILE="$SCRIPT_DIR/hyprland-catppuccin-install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "=== Starting Simple Hyprland Installation ==="
+echo "=== Starting Hyprland + Catppuccin SDDM Installation ==="
 echo "Log file: $LOG_FILE"
 
 if [ "$EUID" -ne 0 ]; then
@@ -21,152 +20,116 @@ if [ -z "${SUDO_USER:-}" ]; then
 fi
 
 USER_HOME=$(eval echo "~$SUDO_USER")
-echo "Installing as user: $SUDO_USER"
+echo "Installing for user: $SUDO_USER"
 echo "User home directory: $USER_HOME"
 
-### Update system first
+# Update system
 echo "Updating system..."
 pacman -Syyu --noconfirm
 
-### Install base-devel and git (needed for yay)
-echo "Installing base-devel and git..."
-pacman -S --noconfirm base-devel git
-
-### Install yay as $SUDO_USER if not installed
+# Install yay if missing
 if ! command -v yay &> /dev/null; then
-  echo "yay not found, installing yay..."
+  echo "Installing yay..."
   cd "$USER_HOME"
   sudo -u "$SUDO_USER" bash -c "
     git clone https://aur.archlinux.org/yay.git
     cd yay
     makepkg -si --noconfirm
   "
-  echo "yay installed"
-else
-  echo "yay already installed"
 fi
 
-### Packages to install from official repos
+# Install official packages
 OFFICIAL_PKGS=(
   pipewire wireplumber pamixer brightnessctl
-  ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code ttf-fira-mono ttf-fira-sans ttf-firacode-nerd
-  ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono
-  ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono
-  sddm firefox unzip thunar thunar-archive-plugin thunar-volman xarchiver tumbler gvfs kitty nano code fastfetch starship tar
-  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst qt5-wayland qt6-wayland waybar cliphist cava
+  ttf-cascadia-code-nerd ttf-fira-code ttf-jetbrains-mono-nerd
+  sddm firefox thunar kitty nano code fastfetch starship
+  hyprland xdg-desktop-portal-hyprland polkit-kde-agent dunst
+  qt5-wayland qt6-wayland waybar cliphist cava
 )
 
-echo "Installing official repo packages..."
+echo "Installing official packages..."
 pacman -S --noconfirm "${OFFICIAL_PKGS[@]}"
 
-### Enable sddm service
-systemctl enable sddm.service
-
-### Detect NVIDIA card and install drivers
-if lspci -k | grep -EA3 'VGA|3D|Display' | grep -i nvidia > /dev/null; then
-  echo "NVIDIA card detected, installing NVIDIA drivers..."
-  pacman -S --noconfirm nvidia nvidia-utils nvidia-settings lib32-nvidia-utils opencl-nvidia
+# NVIDIA driver check
+if lspci -k | grep -iE 'vga|3d' | grep -iq nvidia; then
+  echo "Installing NVIDIA drivers..."
+  pacman -S --noconfirm nvidia nvidia-utils lib32-nvidia-utils opencl-nvidia
 else
-  echo "No NVIDIA card detected, skipping NVIDIA drivers."
+  echo "No NVIDIA GPU detected."
 fi
 
-### Packages to install from AUR via yay
+# Install AUR packages
 AUR_PKGS=(
-  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
+  tofi swww hyprpicker hyprlock wlogout grimblast hypridle
+  kvantum-theme-catppuccin-git thefuck sddm-theme-catppuccin
 )
 
-echo "Installing AUR packages with yay..."
+echo "Installing AUR packages..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
-### Copy configs and assets
+# Set Catppuccin SDDM theme
+echo "Configuring SDDM with Catppuccin theme..."
+THEME_DIR="/usr/share/sddm/themes/catppuccin"
 
-echo "Copying Hyprland config..."
-mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hyprland.conf" "$USER_HOME/.config/hypr/"
+if [ -d "$THEME_DIR" ]; then
+  if [ ! -f /etc/sddm.conf ]; then
+    echo "Creating default /etc/sddm.conf..."
+    sddm --example-config > /etc/sddm.conf
+  fi
 
-echo "Copying dunst config..."
-mkdir -p "$USER_HOME/.config/dunst"
-cp -r "$USER_HOME/hyprv1/configs/dunst/"* "$USER_HOME/.config/dunst/"
+  if grep -q "^\[Theme\]" /etc/sddm.conf; then
+    sed -i "/^\[Theme\]/,/^\[.*\]/ s/^Current=.*/Current=catppuccin/" /etc/sddm.conf || \
+    sed -i "/^\[Theme\]/a Current=catppuccin" /etc/sddm.conf
+  else
+    echo -e "[Theme]\nCurrent=catppuccin" >> /etc/sddm.conf
+  fi
+else
+  echo "ERROR: Catppuccin theme not found at $THEME_DIR"
+fi
 
-echo "Copying waybar config..."
-mkdir -p "$USER_HOME/.config/waybar"
-cp -r "$USER_HOME/hyprv1/configs/waybar/"* "$USER_HOME/.config/waybar/"
+# Enable SDDM
+systemctl enable sddm.service
 
-echo "Copying tofi config..."
-mkdir -p "$USER_HOME/.config/tofi"
-cp -r "$USER_HOME/hyprv1/configs/tofi/"* "$USER_HOME/.config/tofi/"
-
-echo "Copying hyprlock config..."
-mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hyprlock.conf" "$USER_HOME/.config/hypr/"
-
-echo "Copying hypridle config..."
-mkdir -p "$USER_HOME/.config/hypr"
-cp -r "$USER_HOME/hyprv1/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
-
-echo "Copying sample wallpapers..."
-mkdir -p "$USER_HOME/.config/assets/backgrounds"
-cp -r "$USER_HOME/hyprv1/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
-
-echo "Copying Kitty config..."
-mkdir -p "$USER_HOME/.config/kitty"
-cp -r "$USER_HOME/hyprv1/configs/kitty/"* "$USER_HOME/.config/kitty/"
-
-### Set up Starship and Fastfetch
-echo "Setting up Starship and Fastfetch..."
-
+# Copy dotfiles/configs
+echo "Copying configuration files to $USER_HOME/.config..."
 mkdir -p "$USER_HOME/.config"
-cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
+cp -r "$USER_HOME/hyprv1/configs/"* "$USER_HOME/.config/"
+cp -r "$USER_HOME/hyprv1/assets/backgrounds" "$USER_HOME/.config/assets/"
 
-mkdir -p "$USER_HOME/.config/fastfetch"
+# Set up Starship + Fastfetch
+cp "$USER_HOME/hyprv1/configs/starship/starship.toml" "$USER_HOME/.config/starship.toml"
 cp "$USER_HOME/hyprv1/configs/fastfetch/config.conf" "$USER_HOME/.config/fastfetch/config.conf"
 
 BASHRC="$USER_HOME/.bashrc"
+grep -qxF 'eval "$(thefuck --alias)"' "$BASHRC" || echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
+grep -qxF 'eval "$(starship init bash)"' "$BASHRC" || echo 'eval "$(starship init bash)"' >> "$BASHRC"
+grep -q 'fastfetch' "$BASHRC" || echo -e '\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
 
-# Add TheFuck, Starship, and Fastfetch into bashrc
-if ! grep -q 'eval "$(thefuck' "$BASHRC"; then
-  echo 'eval "$(thefuck --alias)"' >> "$BASHRC"
-fi
-
-if ! grep -q 'starship init bash' "$BASHRC"; then
-  echo 'eval "$(starship init bash)"' >> "$BASHRC"
-fi
-
-if ! grep -q 'fastfetch' "$BASHRC"; then
-  echo -e '\n# Show system info\nif command -v fastfetch &> /dev/null; then\n  fastfetch\nfi' >> "$BASHRC"
-fi
-
-### Add logout menu keybind to Hyprland config
+# Add logout menu shortcut to Hyprland config
 HYPR_CONF="$USER_HOME/.config/hypr/hyprland.conf"
+grep -q 'logout-menu.sh' "$HYPR_CONF" || echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
 
-if ! grep -q 'logout-menu.sh' "$HYPR_CONF"; then
-  echo 'bind = SUPER+ESC, exec ~/.config/scripts/logout-menu.sh' >> "$HYPR_CONF"
-fi
+# Fix permissions
+chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config"
+chown "$SUDO_USER:$SUDO_USER" "$BASHRC"
 
-### Fix ownership
-chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
-chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
-
-### Extract and install themes and icons
-
-echo "Installing Catppuccin-Mocha GTK theme..."
+# Install and extract GTK/icon themes
+echo "Extracting and installing GTK and icon themes..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
-
-echo "Installing Tela Circle Dracula icon theme..."
 tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
 
-echo "Setting up Kvantum Catppuccin theme..."
-# Already installed kvantum-theme-catppuccin-git from AUR above
-
-### Apply GTK, icon, and cursor theme using gsettings
-
-echo "Applying GTK, icon, and cursor themes for user $SUDO_USER..."
+# Apply user theming with gsettings
+echo "Applying GTK and icon themes..."
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
 
-echo "Restarting Thunar for theme to apply..."
-sudo -u "$SUDO_USER" pkill thunar || true
-sleep 2
+# Optionally restart sddm
+read -rp "Would you like to restart SDDM now? (y/N): " RESTART_SDDM
+if [[ "$RESTART_SDDM" =~ ^[Yy]$ ]]; then
+  systemctl restart sddm.service
+else
+  echo "Skipping SDDM restart. You can reboot manually later."
+fi
 
-echo "All done! You can now log in to Hyprland."
-echo "========================================"
+echo "✅ Hyprland and Catppuccin setup completed successfully!"
+echo "You can now reboot and log in to your themed Hyprland session."
