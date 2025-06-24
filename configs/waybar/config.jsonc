@@ -133,6 +133,13 @@
         "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
     },
 
+"custom/power": {
+  "format": "⏻",
+  "tooltip": "Left click to shut down, right click to reboot",
+  "on-click": "~/.config/scripts/power-button.sh left",
+  "on-click-right": "~/.config/scripts/power-button.sh right"
+},
+
     "network": {
         "tooltip": true,
         "format-wifi": "  {essid}",
