@@ -67,9 +67,9 @@ AUR_PKGS=(
 echo "Installing AUR packages..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
-# Set Catppuccin SDDM theme
-echo "Configuring SDDM with Catppuccin theme..."
-THEME_DIR="/usr/share/sddm/themes/catppuccin"
+# Set Catppuccin Mocha SDDM theme
+echo "Configuring SDDM with Catppuccin Mocha theme..."
+THEME_DIR="/usr/share/sddm/themes/catppuccin-mocha"
 
 if [ -d "$THEME_DIR" ]; then
   if [ ! -f /etc/sddm.conf ]; then
@@ -78,13 +78,13 @@ if [ -d "$THEME_DIR" ]; then
   fi
 
   if grep -q "^\[Theme\]" /etc/sddm.conf; then
-    sed -i "/^\[Theme\]/,/^\[.*\]/ s/^Current=.*/Current=catppuccin/" /etc/sddm.conf || \
-    sed -i "/^\[Theme\]/a Current=catppuccin" /etc/sddm.conf
+    sed -i "/^\[Theme\]/,/^\[.*\]/ s/^Current=.*/Current=catppuccin-mocha/" /etc/sddm.conf || \
+    sed -i "/^\[Theme\]/a Current=catppuccin-mocha" /etc/sddm.conf
   else
-    echo -e "[Theme]\nCurrent=catppuccin" >> /etc/sddm.conf
+    echo -e "[Theme]\nCurrent=catppuccin-mocha" >> /etc/sddm.conf
   fi
 else
-  echo "ERROR: Catppuccin theme not found at $THEME_DIR"
+  echo "ERROR: Catppuccin Mocha theme not found at $THEME_DIR"
 fi
 
 # Enable SDDM
@@ -113,7 +113,7 @@ grep -q 'logout-menu.sh' "$HYPR_CONF" || echo 'bind = SUPER+ESC, exec ~/.config/
 chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER:$SUDO_USER" "$BASHRC"
 
-# Install and extract GTK/icon themes
+# Install and extract GTK and icon themes
 echo "Extracting and installing GTK and icon themes..."
 tar -xf "$USER_HOME/hyprv1/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
 tar -xf "$USER_HOME/hyprv1/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
@@ -123,6 +123,13 @@ echo "Applying GTK and icon themes..."
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
 sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
 
+# Configure Kvantum to use Catppuccin Mocha
+KVANTUM_DIR="$USER_HOME/.config/Kvantum"
+mkdir -p "$KVANTUM_DIR"
+echo '[General]' > "$KVANTUM_DIR/kvantum.kvconfig"
+echo 'theme=Catppuccin-Mocha' >> "$KVANTUM_DIR/kvantum.kvconfig"
+chown -R "$SUDO_USER:$SUDO_USER" "$KVANTUM_DIR"
+
 # Optionally restart sddm
 read -rp "Would you like to restart SDDM now? (y/N): " RESTART_SDDM
 if [[ "$RESTART_SDDM" =~ ^[Yy]$ ]]; then
@@ -131,5 +138,5 @@ else
   echo "Skipping SDDM restart. You can reboot manually later."
 fi
 
-echo "✅ Hyprland and Catppuccin setup completed successfully!"
+echo "✅ Hyprland and Catppuccin Mocha setup completed successfully!"
 echo "You can now reboot and log in to your themed Hyprland session."
