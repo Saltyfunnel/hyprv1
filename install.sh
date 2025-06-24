@@ -122,7 +122,7 @@ cp -r "$CONFIG_SRC/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/
 
 echo "Setting wallpaper via swww..."
 sudo -u "$SUDO_USER" swww init || true
-sudo -u "$SUDO_USER" swww img "$USER_HOME/.config/assets/backgrounds/your-wallpaper.jpg" || true
+sudo -u "$SUDO_USER" swww img "$USER_HOME/.config/assets/backgrounds/cat_leaves.jpg" || true
 
 ### --- Starship & Fastfetch ---
 echo "Setting up Starship and Fastfetch..."
