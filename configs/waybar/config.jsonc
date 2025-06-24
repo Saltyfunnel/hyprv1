@@ -134,13 +134,13 @@
         "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
     },
 
-    "custom/power": {
-        "format": "⏻",
-        "tooltip": true,
-        "tooltip": "Left click to shut down, right click to reboot",
-        "on-click": "systemctl poweroff",
-        "on-click-right": "systemctl reboot"
-    },
+   "custom/power": {
+  "format": "⏻",
+  "tooltip": true,
+  "tooltip-format": "Power button: left = shutdown, right = reboot",
+  "on-click": "systemctl poweroff",
+  "on-click-right": "systemctl reboot"
+},
 
     "network": {
         "tooltip": true,
