@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="$SCRIPT_DIR/full-install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "=== Full Hyprland + Catppuccin SDDM Setup ==="
+echo "=== Full Hyprland + Black & White Theme Setup ==="
 
 # Check root
 if [ "$EUID" -ne 0 ]; then
@@ -30,7 +30,7 @@ pacman -Syyu --noconfirm
 
 ### --- Base Deps ---
 echo "Installing base-devel and git..."
-pacman -S --noconfirm base-devel git
+pacman -S --noconfirm base-devel git autoconf automake pkgconf gettext
 
 ### --- yay installation ---
 if ! command -v yay &> /dev/null; then
@@ -71,6 +71,38 @@ AUR_PKGS=(
 
 echo "Installing AUR packages..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
+
+### --- Install Arc-Dark GTK Theme ---
+echo "Installing Arc-Dark GTK theme..."
+
+ARC_THEME_DIR="/usr/share/themes/Arc-Dark"
+
+if [ ! -d "$ARC_THEME_DIR" ]; then
+  git clone https://github.com/horst3180/arc-theme.git /tmp/arc-theme
+  cd /tmp/arc-theme
+  ./autogen.sh --prefix=/usr --with-gtk=3 --disable-light --enable-dark --enable-arc-dark
+  make install
+  cd -
+  rm -rf /tmp/arc-theme
+fi
+
+### --- Install Papirus-Dark Icon Theme ---
+echo "Installing Papirus-Dark icon theme..."
+
+PAPIRUS_ICON_DIR="/usr/share/icons/Papirus-Dark"
+
+if [ ! -d "$PAPIRUS_ICON_DIR" ]; then
+  git clone https://github.com/PapirusDevelopmentTeam/papirus-icon-theme.git /tmp/papirus-icon-theme
+  cd /tmp/papirus-icon-theme
+  ./install.sh -a --theme Papirus-Dark
+  cd -
+  rm -rf /tmp/papirus-icon-theme
+fi
+
+### --- Apply GTK and Icon Theme ---
+echo "Applying GTK and icon themes for $SUDO_USER..."
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 
 ### --- Detect Catppuccin SDDM Theme ---
 THEME_DIR=$(find /usr/share/sddm/themes -maxdepth 1 -type d -name 'catppuccin*' | head -n 1)
@@ -144,16 +176,6 @@ grep -q 'logout-menu.sh' "$HYPR_CONF" || echo 'bind = SUPER+ESC, exec ~/.config/
 echo "Fixing config file ownerships..."
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
-
-### --- Themes and Icons ---
-echo "Installing GTK and icon themes..."
-tar -xf "$CONFIG_SRC/assets/themes/Catppuccin-Mocha.tar.xz" -C /usr/share/themes/
-tar -xf "$CONFIG_SRC/assets/icons/Tela-circle-dracula.tar.xz" -C /usr/share/icons/
-
-### --- Apply Themes via GSettings ---
-echo "Applying GTK + icon theme..."
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Catppuccin-Mocha'
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dracula'
 
 ### --- Finish ---
 echo "Restarting SDDM..."
