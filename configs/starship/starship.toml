@@ -1,37 +1,72 @@
-# ~/hyprv1/configs/starship/starship.toml
+# ~/.config/starship.toml
+
+# Add a newline before prompt for clarity
 add_newline = true
 
-format = """
-[](mauve)$username[](bg:lavender fg:mauve)$directory[](bg:maroon fg:lavender)$git_branch$git_status[](fg:maroon bg:base)$python$nodejs
-[](fg:base bg:base)$character
-"""
+# Use bold white for the directory path
+[directory]
+style = "bold white"
+read_only = " "
 
-palette = "catppuccin_mocha"
+# Git branch info in bright white
+[git_branch]
+symbol = " "
+style = "bold white"
 
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo = "#f2cdcd"
-pink = "#f5c2e7"
-mauve = "#cba6f7"
-red = "#f38ba8"
-maroon = "#eba0ac"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-sky = "#89dceb"
-sapphire = "#74c7ec"
-blue = "#89b4fa"
-lavender = "#b4befe"
-text = "#cdd6f4"
-subtext1 = "#bac2de"
-subtext0 = "#a6adc8"
-overlay2 = "#9399b2"
-overlay1 = "#7f849c"
-overlay0 = "#6c7086"
-surface2 = "#585b70"
-surface1 = "#45475a"
-surface0 = "#313244"
-base = "#1e1e2e"
-mantle = "#181825"
-crust = "#11111b"
+# Git status in grayscale
+[git_status]
+style = "white"
+conflicted = "⚠️ "
+ahead = "⇡${count}"
+behind = "⇣${count}"
+staged = "●${count}"
+deleted = "✖${count}"
+renamed = "➜${count}"
+modified = "✎${count}"
+untracked = "…${count}"
+
+# NodeJS version in dim white
+[nodejs]
+style = "dim white"
+
+# Rust version
+[rust]
+style = "dim white"
+
+# Python version
+[python]
+style = "dim white"
+
+# Time module in white
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "white"
+
+# Battery info in white with unicode symbol
+[battery]
+full_symbol = " "
+charging_symbol = " "
+discharging_symbol = " "
+style = "white"
+
+# Username and hostname in white for SSH sessions
+[username]
+style = "bold white"
+
+[hostname]
+style = "bold white"
+
+# Status code (last command success/failure)
+[status]
+style_success = "white"
+style_failure = "bold white"
+symbol = "❯ "
+
+# Customize prompt symbol to be a simple white arrow
+[character]
+success_symbol = "❯ "
+error_symbol = "❯ "
+style_success = "white"
+style_failure = "bold white"
+use_symbol_for_status = true
