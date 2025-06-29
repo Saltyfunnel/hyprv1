@@ -30,7 +30,7 @@ pacman -Syyu --noconfirm
 
 ### --- Base Deps ---
 echo "Installing base-devel and git..."
-pacman -S --noconfirm base-devel git autoconf automake pkgconf gettext
+pacman -S --noconfirm base-devel git
 
 ### --- yay installation ---
 if ! command -v yay &> /dev/null; then
@@ -65,55 +65,23 @@ fi
 
 ### --- AUR Packages ---
 AUR_PKGS=(
-  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-catppuccin-git thefuck
-  sddm-theme-catppuccin
+  tofi swww hyprpicker hyprlock wlogout grimblast hypridle kvantum-theme-arc-dark-git thefuck
+  sddm-theme-arc-dark
 )
 
 echo "Installing AUR packages..."
 sudo -u "$SUDO_USER" yay -S --noconfirm "${AUR_PKGS[@]}"
 
-### --- Install Arc-Dark GTK Theme ---
-echo "Installing Arc-Dark GTK theme..."
-
-ARC_THEME_DIR="/usr/share/themes/Arc-Dark"
-
-if [ ! -d "$ARC_THEME_DIR" ]; then
-  git clone https://github.com/horst3180/arc-theme.git /tmp/arc-theme
-  cd /tmp/arc-theme
-  ./autogen.sh --prefix=/usr --with-gtk=3 --disable-light --enable-dark --enable-arc-dark
-  make install
-  cd -
-  rm -rf /tmp/arc-theme
-fi
-
-### --- Install Papirus-Dark Icon Theme ---
-echo "Installing Papirus-Dark icon theme..."
-
-PAPIRUS_ICON_DIR="/usr/share/icons/Papirus-Dark"
-
-if [ ! -d "$PAPIRUS_ICON_DIR" ]; then
-  git clone https://github.com/PapirusDevelopmentTeam/papirus-icon-theme.git /tmp/papirus-icon-theme
-  cd /tmp/papirus-icon-theme
-  ./install.sh -a --theme Papirus-Dark
-  cd -
-  rm -rf /tmp/papirus-icon-theme
-fi
-
-### --- Apply GTK and Icon Theme ---
-echo "Applying GTK and icon themes for $SUDO_USER..."
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
-sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
-
-### --- Detect Catppuccin SDDM Theme ---
-THEME_DIR=$(find /usr/share/sddm/themes -maxdepth 1 -type d -name 'catppuccin*' | head -n 1)
+### --- Detect Arc-Dark SDDM Theme ---
+THEME_DIR=$(find /usr/share/sddm/themes -maxdepth 1 -type d -name 'arc-dark*' | head -n 1)
 THEME_NAME=$(basename "$THEME_DIR")
 
 if [ ! -d "$THEME_DIR" ]; then
-  echo "ERROR: Catppuccin SDDM theme not found."
+  echo "ERROR: Arc-Dark SDDM theme not found."
   exit 1
 fi
 
-echo "Detected Catppuccin theme: $THEME_NAME"
+echo "Detected SDDM theme: $THEME_NAME"
 
 ### --- Configure SDDM Theme ---
 if [ ! -f /etc/sddm.conf ]; then
@@ -148,13 +116,14 @@ done
 cp "$CONFIG_SRC/configs/hypr/hyprlock.conf" "$USER_HOME/.config/hypr/"
 cp "$CONFIG_SRC/configs/hypr/hypridle.conf" "$USER_HOME/.config/hypr/"
 
-echo "Copying assets (wallpapers)..."
+### --- Copy and set wallpaper ---
+echo "Copying wallpaper..."
 mkdir -p "$USER_HOME/.config/assets/backgrounds"
-cp -r "$CONFIG_SRC/assets/backgrounds/"* "$USER_HOME/.config/assets/backgrounds/"
+cp "$CONFIG_SRC/assets/wallhaven-ox7qxp.jpg" "$USER_HOME/.config/assets/backgrounds/"
 
 echo "Setting wallpaper via swww..."
 sudo -u "$SUDO_USER" swww init || true
-sudo -u "$SUDO_USER" swww img "$USER_HOME/.config/assets/backgrounds/cat_leaves.jpg" || true
+sudo -u "$SUDO_USER" swww img "$USER_HOME/.config/assets/backgrounds/wallhaven-ox7qxp.jpg" || true
 
 ### --- Starship & Fastfetch ---
 echo "Setting up Starship and Fastfetch..."
@@ -176,6 +145,33 @@ grep -q 'logout-menu.sh' "$HYPR_CONF" || echo 'bind = SUPER+ESC, exec ~/.config/
 echo "Fixing config file ownerships..."
 chown -R "$SUDO_USER":"$SUDO_USER" "$USER_HOME/.config"
 chown "$SUDO_USER":"$SUDO_USER" "$BASHRC"
+
+### --- Themes and Icons ---
+echo "Installing GTK and icon themes..."
+
+# Download and extract Arc-Dark GTK theme
+if [ ! -d /usr/share/themes/Arc-Dark ]; then
+  echo "Downloading Arc-Dark GTK theme..."
+  curl -L -o /tmp/arc-dark.tar.xz https://github.com/lassekongo83/arc-theme/releases/latest/download/Arc-Dark.tar.xz
+  tar -xf /tmp/arc-dark.tar.xz -C /usr/share/themes/
+  rm /tmp/arc-dark.tar.xz
+fi
+
+# Download and extract Papirus-Dark icon theme
+if [ ! -d /usr/share/icons/Papirus-Dark ]; then
+  echo "Downloading Papirus-Dark icon theme..."
+  curl -L -o /tmp/papirus-dark.tar.xz https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/archive/refs/heads/master.tar.gz
+  mkdir -p /tmp/papirus-extract
+  tar -xf /tmp/papirus-dark.tar.xz -C /tmp/papirus-extract
+  # Assume icon folder inside extracted content - adjust if needed
+  cp -r /tmp/papirus-extract/papirus-icon-theme-master/Papirus-Dark /usr/share/icons/
+  rm -rf /tmp/papirus-extract /tmp/papirus-dark.tar.xz
+fi
+
+### --- Apply Themes via GSettings ---
+echo "Applying GTK + icon theme..."
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
+sudo -u "$SUDO_USER" dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 
 ### --- Finish ---
 echo "Restarting SDDM..."
